@@ -1,6 +1,7 @@
 Setup () {
 
 echo "Setup..."
+date
 
 sudo apt-get install -y amass subfinder nmap massdns masscan httprobe dirsearch awscli trufflehog golang chromium php python3-pip
 sudo pip3 install censys-command-line s3scanner
@@ -19,11 +20,13 @@ unzip aquatone_linux_amd64_1.7.0.zip
 rm README.md LICENSE.txt aquatone_linux_amd64_1.7.0.zip
 cd ..
 
+date
 }
 
 Passive_Scraping () {
 
 echo "##### PASSIVE SCRAPING AND RESOLVING #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -41,19 +44,23 @@ amass enum -passive -d $Domain > 1-1-Amass.txt 2>/dev/null
 echo "Running SubFinder..."
 subfinder -silent -d $Domain > 1-2-SubFinder.txt
 
+echo "Combine Result..."
 cat 1-1-Amass.txt 1-2-SubFinder.txt | tr A-Z a-z | sort | uniq > 1-3-Total-Scraping.txt
 
+echo "Running Resolving..."
 > 1-4-massdns-Resolving.txt
 massdns -r ../Resources/resolvers.txt -q 1-3-Total-Scraping.txt | grep -E "IN A [0-9]|CNAME" | grep $Domain >> 1-4-massdns-Resolving.txt
 cat 1-4-massdns-Resolving.txt | cut -d " " -f1 | sort | uniq | sed 's/.$//' > 1-5-Total-Valid-Scraping.txt
 cat 1-4-massdns-Resolving.txt | grep "IN A" | cut -d " " -f5 | sort | uniq > 1-6-Resolving-IPs.txt
 
 cd ..
+date
 }
 
 Brute_Force () {
 
 echo "##### BRUTE FORCING #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -65,20 +72,23 @@ echo "Domain:" $Domain
 mkdir $Domain 2>/dev/null
 cd $Domain
 
+echo "Combine Wordlists..."
 cat ../Resources/all.txt ../Resources/commonspeak.txt | sort | uniq | sed "s/$/.$Domain/g" > 2-1-Total-Wordlist.txt
 
 echo "Running BruteForce..."
 > 2-2-massdns-Resolving.txt
-massdns -r ../Resources/resolvers.txt 2-1-Total-Wordlist.txt | grep -E "IN A [0-9]|CNAME" | grep $Domain >> 2-2-massdns-Resolving.txt
+massdns -r ../Resources/resolvers.txt -q 2-1-Total-Wordlist.txt | grep -E "IN A [0-9]|CNAME" | grep $Domain >> 2-2-massdns-Resolving.txt
 cat 2-2-massdns-Resolving.txt | cut -d " " -f1 | sort | uniq | sed 's/.$//' > 2-3-BruteForce-Domains.txt
 cat 2-2-massdns-Resolving.txt | grep "IN A" | cut -d " " -f5 | sort | uniq > 2-4-Resolving-IPs.txt
 
 cd ..
+date
 }
 
 WildCard_Removal () {
 
 echo "##### WILDCARD REMOVAL #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -120,11 +130,13 @@ done
 cat 3-5-Root-Wildcard.txt 3-4-Not-Have-Wildcard.txt | sort | uniq > 3-6-Total-Not-Have-Wildcard.txt
 
 cd ..
+date
 }
 
 Spidering () {
 
 echo "##### DOMAINS SPIDERING #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -139,17 +151,19 @@ cd $Domain
 echo "Running httprobe..."
 cat 3-6-Total-Not-Have-Wildcard.txt | httprobe > 3-6-1-httprobe.txt
 echo "Running GoSpider..."
-../Tools/bin/gospider -S 3-6-1-httprobe.txt -o 3-6-2-Spidering -t 50 -c 10 -d 3 --subs --js --sitemap --robots | grep "\[url\]"
+../Tools/bin/gospider -S 3-6-1-httprobe.txt -o 3-6-2-Spidering -t 50 -c 10 -d 3 --subs --js --sitemap --robots 1>/dev/null # | grep "\[url\]"
 cat 3-6-2-Spidering/* | grep -Eo '[a-z0-9_-]*\.[a-z0-9_-]*\.*[a-z0-9_-]*\.*[a-z0-9_-]*\.*[a-z0-9_-]*' | grep $Domain | sort -u > 3-6-3-Spider-SubDomains.txt
 
 cat 3-6-Total-Not-Have-Wildcard.txt 3-6-3-Spider-SubDomains.txt | sort -u > 3-6-4-Final-SubDomains.txt
 
 cd ..
+date
 }
 
 TakeOver () {
 
 echo "##### SUBDOMAINS TAKEOVER #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -179,12 +193,14 @@ done
 rm take.tmp
 
 cd ..
+date
 }
 
 Censys () {
 
 echo "##### CENSYS SEARCH ENGINE #####"
 echo "##### Make sure to put your censys API keys using censys config command #####"
+date
 
 #printf "$API_ID\n$API_Secret\n" | censys config > /dev/null 2>&1
 
@@ -202,11 +218,13 @@ censys search --pages 1000 "$Domain" > 5-1-Censys-Result.txt
 cat 5-1-Censys-Result.txt | grep '"ip":' | cut -d '"' -f 4 | sort -n | uniq > 5-2-Censys-IPs.txt
 
 cd ..
+date
 }
 
 Port_Scanning () {
 
 echo "##### IP & PORT SCANNING #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -228,18 +246,20 @@ echo "Running Nmap TCP..."
 cat 6-2-masscan-Scanning.txt | grep tcp | cut -d " " -f3,4 | while read line; do
 IP=$(echo $line | cut -d " " -f2)
 PORT=$(echo $line | cut -d " " -f1)
-nmap -sV -sC -Pn $IP -p $PORT | tee -a 6-3-Nmap-TCP-Scanning.txt
+nmap -sV -sC -Pn $IP -p $PORT >> 6-3-Nmap-TCP-Scanning.txt
 done
 
 echo "Running Nmap UDP..."
 nmap -iL 6-1-Total-IPs.txt -sU -nn -Pn --top-ports=10 > 6-4-Nmap-UDP-Scanning.txt
 
 cd ..
+date
 }
 
 Websites_Screenshots () {
 
 echo "##### DOMAINS SCREENSHOTS #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -255,11 +275,13 @@ echo "Running ScreenShots..."
 cat 3-6-4-Final-SubDomains.txt | ../Tools/aquatone -scan-timeout 2000 -http-timeout 5000 -threads 5 -silent -out 7-1-ScreenShotsDir
 
 cd ..
+date
 }
 
 Dir_BruteForce () {
 
 echo "##### DIRECTORIES & FILES BRUTE FORCING #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -275,17 +297,19 @@ echo "Running DirSearch..."
 
 > dir.tmp
 cat 7-1-ScreenShotsDir/aquatone_urls.txt | while read line; do
-timeout 300 dirsearch -e php,asp,aspx,jsp,html,zip,jar -w $PWD/../Resources/dicc.txt -t 50 -u $line -o $PWD/8-1-DirSearch.txt -q --full-url
+timeout 300 dirsearch -e php,asp,aspx,jsp,html,zip,jar -w $PWD/../Resources/dicc.txt -t 50 -u $line -o $PWD/8-1-DirSearch.txt -q --full-url 1>/dev/null
 cat 8-1-DirSearch.txt >> dir.tmp
 done
 mv dir.tmp 8-1-DirSearch.txt
 
 cd ..
+date
 }
 
 Internet_Archive () {
 
 echo "##### INTERNET ARCHIVE #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 example.com"
@@ -312,12 +336,14 @@ cat 9-1-WayBackURLs.txt | sort -u | grep -P "\w+\.jsp(\?|$)" | sort | uniq > 9-5
 cat 9-1-WayBackURLs.txt | sort -u | grep -P "\w+\.aspx(\?|$)" | sort | uniq > 9-6-ASPX-Files.txt
 
 cd ..
+date
 }
 
 AWS_S3_Buckets () {
 
 echo "##### AWS S3 BUCKETS #####"
 echo "##### Make sure to put your AWS API Keys using aws configure command #####"
+date
 
 #AWSAccessKeyId=
 #AWSSecretKey=
@@ -351,11 +377,13 @@ echo "Running S3Scanner..."
 s3scanner --threads 10 scan --buckets-file 10-1-AWS-Wordlist.txt | grep "bucket_exists" > 10-2-AWS-Result.txt
 
 cd ..
+date
 }
 
 Github_Leaked_Secrets () {
 
 echo "##### GITHUB LEAKED SECRETS #####"
+date
 
 if [[ $2 == "" ]];then
 echo "Usage: $0 $1 github_username"
@@ -364,8 +392,8 @@ fi
 
 User=$2
 echo "User:" $User
-rm -r $User 2>/dev/null
-mkdir $User; cd $User
+rm -r GitHub_"$User" 2>/dev/null
+mkdir GitHub_"$User"; cd GitHub_"$User"
 mkdir Repos; cd Repos
 
 # Find the repos owned by the target organization (not forked), then clone these repos locally
@@ -397,6 +425,7 @@ cd ..
 fi
 
 cd ..
+date
 }
 
 ALL () {
