@@ -4,7 +4,7 @@ A tool to map the attack surface discovery of any target.
 
 ## Tool Architecture
 
-![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Image.png)
+![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Images/Image.png)
 
 ## Tool Features
 
@@ -57,12 +57,17 @@ The tool has been tried and validated on kali linux.
 
 ### Installation
 
+![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Images/Image1.png)
+![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Images/Image2.png)
 
 ### Usage
 
+![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Images/Image3.png)
+![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Images/Image4.png)
 
 ### Result
 
+![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Images/Image5.png)
 
 ## Tools Used
 
