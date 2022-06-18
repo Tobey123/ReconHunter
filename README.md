@@ -1,11 +1,10 @@
-## Recon Hunter
-
-
-![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Image.png)
+# Recon Hunter
 
 A tool to map the attack surface discovery of any target.
 
 ## Tool Architecture
+
+![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Image.png)
 
 ## Tool Features
 
