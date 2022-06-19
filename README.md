@@ -87,3 +87,7 @@ The tool has been tried and validated on kali linux.
 - S3Scanner
 - AWScli
 - TruffleHog
+
+## To Do
+
+- Makeing a stealth mode to reduce the noisy of the tool.
