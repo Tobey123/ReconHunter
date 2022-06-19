@@ -90,4 +90,4 @@ The tool has been tried and validated on kali linux.
 
 ## To Do
 
-- Makeing a stealth mode to reduce the noisy of the tool.
+- Making a stealthy mode to reduce the noisy of the tool.
