@@ -2,10 +2,6 @@
 
 A tool to map the attack surface discovery of any target.
 
-## Tool Architecture
-
-![alt text](https://raw.githubusercontent.com/hassan0x/ReconHunter/main/Images/Image.png)
-
 ## Tool Features
 
 - Sub-Domains Passive Scraping
